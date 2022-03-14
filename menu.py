@@ -2,6 +2,7 @@ import pygame
 import sys
 
 from settings import *
+from support import get_font
 
 pygame.font.init()
 
@@ -112,13 +113,15 @@ class Button:
             self.display_surface.blit(self.image, self.rect)
             self.display_surface.blit(self.text_surf, self.text_rect)
 
-    def check_alignement(self, y_alignement):
+    def alignement(self, y_alignement):
         if y_alignement == 'top':
-            y = 50 + text_surf.get_size()[1]
+            y = 50 + self.text_surf.get_size()[1]
         elif y_alignement == 'middle':
             y = screen_height / 2
         elif y_alignement == 'bottom':
-            y = (screen_height - 50) - text_surf.get_size()[1]
+            y = (screen_height - 50) - self.text_surf.get_size()[1]
+        
+        self.pos = (self.pos[0], y)
 
     def draw(self, pos):
         # Update rect end text

@@ -2,30 +2,30 @@ import pygame
 import sys
 
 from settings import *
-from level import Level
+from tictactoe import TicTacToe
 from menu import Menu, Button
 
 
 class Game:
     def __init__(self):
-        self.status = 'menu'
-        self.level = Level(screen)
+        self.status = 'game'
+        self.tictactoe = TicTacToe(screen, 'normal', self.create_menu)
         self.start_menu = Menu(screen,
-                               "Tic Tac Toe",
-                               [
-                                    Button(screen,
-                                          self.create_level, "Jouer contre ordinateur simple", 400, 50),
-                                    Button(screen,
-                                          self.create_level, "Jouer contre ordinateur expert", 400, 50),
-                                    Button(screen,
-                                          self.create_level, "Joueur contre joueur", 400, 50),
-                                    Button(screen,
-                                          self.create_level, "Stats", 400, 50),
-                                    Button(screen,
-                                          self.create_level, "Dernière partie", 400, 50),
-                                   Button(screen,
-                                          self.quit_game, "Quitter", 400, 50)
-                               ])
+							   "Tic Tac Toe",
+							   [
+								   Button(screen,
+										  self.create_simple_computer_tictactoe, "Jouer contre ordinateur simple", 400, 50),
+								   Button(screen,
+										  self.create_expert_computer_tictactoe, "Jouer contre ordinateur expert", 400, 50),
+								   Button(screen,
+										  self.create_jcj_tictactoe, "Joueur contre joueur", 400, 50),
+								   Button(screen,
+										  self.create_menu, "Stats", 400, 50),
+								   Button(screen,
+										  self.create_menu, "Dernière partie", 400, 50),
+								   Button(screen,
+										  self.quit_game, "Quitter", 400, 50)
+							   ])
 
     def quit_game(self):
         pygame.quit()
@@ -36,24 +36,38 @@ class Game:
                                "Tic Tac Toe",
                                [
                                    Button(screen,
-                                          self.create_level, "Jouer ", 200, 50),
+                                          self.create_simple_computer_tictactoe, "Jouer contre ordinateur simple", 400, 50),
                                    Button(screen,
-                                          self.create_level, "Settings", 200, 50),
+                                          self.create_expert_computer_tictactoe, "Jouer contre ordinateur expert", 400, 50),
                                    Button(screen,
-                                          self.quit_game, "Quit", 200, 50)
-                               ],
-                               "graphics/ui/start_menu_banner.png",)
+                                          self.create_jcj_tictactoe, "Joueur contre joueur", 400, 50),
+                                   Button(screen,
+                                          self.create_menu, "Stats", 400, 50),
+                                   Button(screen,
+                                          self.create_menu, "Dernière partie", 400, 50),
+                                   Button(screen,
+                                          self.quit_game, "Quitter", 400, 50)
+                               ])
         self.status = 'menu'
 
-    def create_level(self):
-        self.level = Level(screen)
-        self.status = 'level'
+    def create_jcj_tictactoe(self):
+        self.tictactoe = TicTacToe(screen, 'jcj', self.create_menu)
+        self.status = 'game'
+
+    def create_simple_computer_tictactoe(self):
+        self.tictactoe = TicTacToe(screen, 'simple computer', self.create_menu)
+        self.status = 'game'
+
+    def create_expert_computer_tictactoe(self):
+        self.tictactoe = TicTacToe(screen, 'expert computer', self.create_menu)
+        self.status = 'game'
 
     def run(self):
         if self.status == 'menu':
             self.start_menu.run()
         else:
-            self.level.run()
+            self.tictactoe.run()
+
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Tic Tac toe")
