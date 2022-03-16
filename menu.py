@@ -69,12 +69,13 @@ class Menu:
 
 
 class Button:
-    def __init__(self, surface, callback, text, width, height, pos=None, normal_image='graphics/button/button_normal.png', hover_image='graphics/button/button_hover.png'):
+    def __init__(self, surface, callback, text, width, height, mouse, pos=None, normal_image='graphics/button/button_normal.png', hover_image='graphics/button/button_hover.png'):
         super().__init__()
         self.width = width
         self.height = height
         self.display_surface = surface
         self.text = text
+        self.mouse = mouse
         self.callback = callback
         self.normal_image = normal_image
         self.hover_image = hover_image
@@ -100,6 +101,7 @@ class Button:
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
             # Change color of button on hover
+            self.mouse.change_status('hover')
             self.image = pygame.image.load(self.hover_image).convert_alpha()
             self.display_surface.blit(self.image, self.rect)
             self.display_surface.blit(self.text_surf, self.text_rect)
@@ -109,6 +111,7 @@ class Button:
                 if self.callback != None:
                     self.callback()
         else:
+            self.mouse.change_status('normal')
             self.image = pygame.image.load(self.normal_image).convert_alpha()
             self.display_surface.blit(self.image, self.rect)
             self.display_surface.blit(self.text_surf, self.text_rect)
