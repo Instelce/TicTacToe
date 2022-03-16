@@ -1,5 +1,6 @@
 from random import randint
 import time
+from numpy import diagonal
 
 import pygame
 
@@ -110,53 +111,114 @@ class TicTacToe:
     def computer(self):
         can_row_block = False
         can_col_block = False
-        row_or_col = randint(1, 2)
-        # tile = Case(80, self.grid_tiles[case[0]][case[1]].x + 10,
-                                            # self.grid_tiles[case[0]][case[1]].y + 10, self.round_image)
+        can_diagonal_right_block = False
+        can_diagonal_left_block = False
+
         if self.game_type == 'computer simple':
             if not self.player_can_play:
                 for count in self.x_row_count:
                     if self.x_row_count[count] == 2:
-                        # Bloquer
-                        print("Bloque Ligne")
-                        if not can_col_block and row_or_col == 1:
-                            for col_index, val in enumerate(self.tictactoe_matrix[count]):
-                                if val == '':
-                                    tile = Case(80, self.grid_tiles[count][col_index].x + 10,
-                                                self.grid_tiles[count][col_index].y + 10, self.round_image)
-                                    self.case_group.add(tile)
-                                    self.tictactoe_matrix[count][col_index] = 'O'    
-                                    can_row_block = True
-                    if self.x_row_count[count] == 1:
-                        # Case aléatoire
-                        print("Case aléatoire")
-                        case = self.get_random_case()
-                        tile = Case(80, self.grid_tiles[case[0]][case[1]].x + 10,
-                                            self.grid_tiles[case[0]][case[1]].y + 10, self.round_image)
-                        self.case_group.add(tile)
-                        self.tictactoe_matrix[case[0]][case[1]] = 'O' 
+                        # Block
+                        for col_index, val in enumerate(self.tictactoe_matrix[count]):
+                            if val == '':
+                                print(f"Bloque Ligne {count} and check {col_index} case")
+                                row_case_pos = [count, col_index]
+                                can_row_block = True
                 for count in self.x_col_count:
                     if self.x_col_count[count] == 2:
-                        # Bloquer
-                        print("Bloque Colonne")
-                        if not can_row_block or can_row_block and row_or_col == 2:
-                            print(self.tictactoe_col_matrix[count])
-                            for col_index, val in enumerate(self.tictactoe_col_matrix[count]):
-                                if val == '':
-                                    tile = Case(80, self.grid_tiles[col_index][count].x + 10,
-                                                self.grid_tiles[col_index][count].y + 10, self.round_image)
-                                    self.case_group.add(tile)
-                                    self.tictactoe_matrix[col_index][count] = 'O'
-                                    can_col_block = True
-                    # if self.x_col_count[count] == 1:
-                    #     # Case aléatoire
-                    #     print("Case aléatoire")
-                    #     case = self.get_random_case()
-                    #     tile = Case(80, self.grid_tiles[case[0]][case[1]].x + 10,
-                    #                         self.grid_tiles[case[0]][case[1]].y + 10, self.round_image)
-                    #     self.case_group.add(tile)
-                    #     self.tictactoe_matrix[case[0]][case[1]] = 'O' 
-            self.player_can_play = True
+                        # Block
+                        for col_index, val in enumerate(self.tictactoe_col_matrix[count]):
+                            if val == '':
+                                print(f"Bloque Colonne {count} and check {col_index} case")
+                                col_case_pos = [col_index, count]
+                                can_col_block = True
+                if self.x_diagonal_right_count == 2:
+                    for index, val in enumerate(self.x_diagonal_right):
+                        if val == '':
+                            print(f"Bloque Right Diagonal {index} ; {index}")
+                            diagonal_right_pos = [index, index]
+                            can_diagonal_right_block = True
+                if self.x_diagonal_left_count == 2:
+                    print(self.x_diagonal_left)
+                    for index, val in enumerate(self.x_diagonal_left):
+                        if val == '':
+                            print(f"Bloque Left Diagonal {index} ; {index}")
+                            if index == 0:
+                                diagonal_left_pos = [0, 2]
+                            elif index == 2:
+                                diagonal_left_pos = [2, 0]
+                            else:
+                                diagonal_left_pos = [index, index]
+
+                            can_diagonal_left_block = True
+                
+                if can_row_block and can_col_block:
+                    row_or_col_or_diagonal = randint(1, 2)
+                else:
+                    row_or_col_or_diagonal = randint(1, 4)
+
+
+                if can_row_block and can_col_block or can_row_block and can_diagonal_right_block or can_col_block and can_diagonal_right_block or can_row_block and can_diagonal_left_block or can_col_block and can_diagonal_left_block or can_diagonal_right_block and can_diagonal_left_block or can_row_block and can_col_block and can_diagonal_right_block or can_row_block and can_col_block and can_diagonal_left_block:
+                    if row_or_col_or_diagonal == 1:
+                        # Row block
+                        tile = Case(80, self.grid_tiles[row_case_pos[0]][row_case_pos[1]].x + 10,
+                                            self.grid_tiles[row_case_pos[0]][row_case_pos[1]].y + 10, self.round_image)
+                        self.case_group.add(tile)
+                        self.tictactoe_matrix[row_case_pos[0]][row_case_pos[1]] = 'O'
+                    elif row_or_col_or_diagonal == 2:
+                        # Col block
+                        tile = Case(80, self.grid_tiles[col_case_pos[0]][col_case_pos[1]].x + 10,
+                                            self.grid_tiles[col_case_pos[0]][col_case_pos[1]].y + 10, self.round_image)
+                        self.case_group.add(tile)
+                        self.tictactoe_matrix[col_case_pos[0]][col_case_pos[1]] = 'O'
+                    elif row_or_col_or_diagonal == 3:
+                        # Diagonal right block
+                        tile = Case(80, self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].x + 10,
+                                            self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].y + 10, self.round_image)
+                        self.case_group.add(tile)
+                        self.tictactoe_matrix[diagonal_right_pos[0]][diagonal_right_pos[1]] = 'O'
+                    elif row_or_col_or_diagonal == 4:
+                         # Diagonal left block
+                        tile = Case(80, self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].x + 10,
+                                                self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].y + 10, self.round_image)
+                        self.case_group.add(tile)
+                        self.tictactoe_matrix[diagonal_left_pos[0]][diagonal_left_pos[1]] = 'O'
+                elif can_row_block:
+                    # Row block
+                    tile = Case(80, self.grid_tiles[row_case_pos[0]][row_case_pos[1]].x + 10,
+                                            self.grid_tiles[row_case_pos[0]][row_case_pos[1]].y + 10, self.round_image)
+                    self.case_group.add(tile)
+                    self.tictactoe_matrix[row_case_pos[0]][row_case_pos[1]] = 'O'
+                elif can_col_block:
+                    # Col block
+                    tile = Case(80, self.grid_tiles[col_case_pos[0]][col_case_pos[1]].x + 10,
+                                            self.grid_tiles[col_case_pos[0]][col_case_pos[1]].y + 10, self.round_image)
+                    self.case_group.add(tile)
+                    self.tictactoe_matrix[col_case_pos[0]][col_case_pos[1]] = 'O'
+                elif can_diagonal_right_block:
+                    # Diagonal right block
+                    tile = Case(80, self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].x + 10,
+                                            self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].y + 10, self.round_image)
+                    self.case_group.add(tile)
+                    self.tictactoe_matrix[diagonal_right_pos[0]][diagonal_right_pos[1]] = 'O'
+                elif can_diagonal_left_block:
+                    # Diagonal left block
+                    tile = Case(80, self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].x + 10,
+                                            self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].y + 10, self.round_image)
+                    self.case_group.add(tile)
+                    self.tictactoe_matrix[diagonal_left_pos[0]][diagonal_left_pos[1]] = 'O'
+                else:
+                    # Random case
+                    case = self.get_random_case()
+                    print(f"Case aléatoire {case}")
+                    tile = Case(80, self.grid_tiles[case[0]][case[1]].x + 10,
+                                        self.grid_tiles[case[0]][case[1]].y + 10, self.round_image)
+                    self.case_group.add(tile)
+                    self.tictactoe_matrix[case[0]][case[1]] = 'O'
+                    pass
+                
+                # time.sleep(2)
+                self.player_can_play = True 
 
     def check_win(self):
         self.tictactoe_col_matrix = create_matrix(3, 3)
@@ -208,18 +270,26 @@ class TicTacToe:
                 self.winner = 'O'
 
         # Diagonal check
-        x_diagonal_right = 0
-        o_diagonal_right = 0
-        x_diagonal_left = 0
-        o_diagonal_left = 0
+        self.x_diagonal_right = []
+        self.x_diagonal_left = []
+        self.x_diagonal_right_count = 0
+        o_diagonal_right_count = 0
+        self.x_diagonal_left_count = 0
+        o_diagonal_left_count = 0
+
 
         for row_index, row in enumerate(self.tictactoe_matrix):
             for col_index, val in enumerate(row):
-                if col_index == row_index and val == 'X':
-                    x_diagonal_right += 1
-                elif col_index == row_index and val == 'O':
-                    o_diagonal_right += 1
+                if col_index == row_index:
+                    self.x_diagonal_right.append(val)
 
+                if col_index == row_index and val == 'X':
+                    self.x_diagonal_right_count += 1
+                elif col_index == row_index and val == 'O':
+                    o_diagonal_right_count += 1
+
+        print("Diagonal Right : ", self.x_diagonal_right_count)
+        
         # Reverse the matrix for left check
         tictactoe_matrix_reverse = []
         for row_index, row in enumerate(self.tictactoe_matrix):
@@ -228,14 +298,17 @@ class TicTacToe:
 
         for row_index, row in enumerate(tictactoe_matrix_reverse):
             for col_index, val in enumerate(row):
-                if col_index == row_index and val == 'X':
-                    x_diagonal_left += 1
-                elif col_index == row_index and val == 'O':
-                    o_diagonal_left += 1
+                if col_index == row_index:
+                    self.x_diagonal_left.append(val)
 
-        if x_diagonal_right == 3 or x_diagonal_left == 3:
+                if col_index == row_index and val == 'X':
+                    self.x_diagonal_left_count += 1
+                elif col_index == row_index and val == 'O':
+                    o_diagonal_left_count += 1
+
+        if self.x_diagonal_right_count == 3 or self.x_diagonal_left_count == 3:
             self.winner = 'X'
-        elif o_diagonal_right == 3 or o_diagonal_left == 3:
+        elif o_diagonal_right_count == 3 or o_diagonal_left_count == 3:
             self.winner = 'O'
 
     def change_player(self):
@@ -293,12 +366,16 @@ class TicTacToe:
                   "#000000",
                   (screen_width / 2, screen_height - 160))
         elif not self.player_can_play and self.game_type != 'jcj' and self.winner == None:
-            self.computer()
-
             draw_text(self.display_surface,
-                  "Computer Turn",
-                  40,
-                  "#000000",
-                  (screen_width / 2, screen_height - 160))
+                "Computer Turn",
+                40,
+                "#000000",
+                (screen_width / 2, screen_height - 160))
+
+            if now - self.last_time >= 2000:
+                self.last_time = now
+                self.computer()
+
+                
 
         self.case_group.draw(self.display_surface)
