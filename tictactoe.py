@@ -30,6 +30,7 @@ class TicTacToe:
         self.player = 'X'
         self.player_counter = 0
         self.case_group = pygame.sprite.Group()
+        self.empty_case_count = 9
         self.already_set = False
         self.winner = None
         self.player_can_play = True
@@ -89,6 +90,7 @@ class TicTacToe:
                                 self.tictactoe_matrix[row_index][tile_index] = 'O'
 
                             self.case_group.add(tile)
+                            self.empty_case_count -= 1
                             if self.game_type == 'computer simple' or self.game_type == 'computer expert':
                                 self.player_can_play = False
                             if self.game_type == 'jcj':
@@ -113,6 +115,7 @@ class TicTacToe:
         can_col_block = False
         can_diagonal_right_block = False
         can_diagonal_left_block = False
+        can_block_count = 0
 
         if self.game_type == 'computer simple':
             if not self.player_can_play:
@@ -121,22 +124,25 @@ class TicTacToe:
                         # Block
                         for col_index, val in enumerate(self.tictactoe_matrix[count]):
                             if val == '':
-                                print(f"Bloque Ligne {count} and check {col_index} case")
+                                print(f"Bloque Ligne {count+1} and check {col_index+1} case")
                                 row_case_pos = [count, col_index]
+                                can_block_count += 1
                                 can_row_block = True
                 for count in self.x_col_count:
                     if self.x_col_count[count] == 2:
                         # Block
                         for col_index, val in enumerate(self.tictactoe_col_matrix[count]):
                             if val == '':
-                                print(f"Bloque Colonne {count} and check {col_index} case")
+                                print(f"Bloque Colonne {count+1} and check {col_index+1} case")
                                 col_case_pos = [col_index, count]
+                                can_block_count += 1
                                 can_col_block = True
                 if self.x_diagonal_right_count == 2:
                     for index, val in enumerate(self.x_diagonal_right):
                         if val == '':
                             print(f"Bloque Right Diagonal {index} ; {index}")
                             diagonal_right_pos = [index, index]
+                            can_block_count += 1
                             can_diagonal_right_block = True
                 if self.x_diagonal_left_count == 2:
                     print(self.x_diagonal_left)
@@ -150,15 +156,13 @@ class TicTacToe:
                             else:
                                 diagonal_left_pos = [index, index]
 
+                            can_block_count += 1
                             can_diagonal_left_block = True
-                
-                if can_row_block and can_col_block:
-                    row_or_col_or_diagonal = randint(1, 2)
-                else:
-                    row_or_col_or_diagonal = randint(1, 4)
 
+                if can_block_count > 1:
+                    row_or_col_or_diagonal = randint(1, can_block_count)
+                    print("Block Count :", can_block_count, "| Choice :", row_or_col_or_diagonal)
 
-                if can_row_block and can_col_block or can_row_block and can_diagonal_right_block or can_col_block and can_diagonal_right_block or can_row_block and can_diagonal_left_block or can_col_block and can_diagonal_left_block or can_diagonal_right_block and can_diagonal_left_block or can_row_block and can_col_block and can_diagonal_right_block or can_row_block and can_col_block and can_diagonal_left_block:
                     if row_or_col_or_diagonal == 1:
                         # Row block
                         tile = Case(80, self.grid_tiles[row_case_pos[0]][row_case_pos[1]].x + 10,
@@ -218,6 +222,7 @@ class TicTacToe:
                     pass
                 
                 # time.sleep(2)
+                self.empty_case_count -= 1
                 self.player_can_play = True 
 
     def check_win(self):
@@ -343,7 +348,12 @@ class TicTacToe:
                   40,
                   "#000000",
                   (screen_width / 2, screen_height - 160))
-
+        elif self.winner == None and self.empty_case_count == 0:
+            draw_text(self.display_surface,
+                  f"Equality",
+                  40,
+                  "#000000",
+                  (screen_width / 2, screen_height - 160))
     def run(self):
         now = pygame.time.get_ticks()
         grid_is_draw = False
@@ -355,7 +365,7 @@ class TicTacToe:
             self.draw_grid()
             grid_is_draw = True
 
-        if grid_is_draw and self.winner == None:
+        if grid_is_draw and self.winner == None and self.empty_case_count >= 1:
             self.check_grid()
             self.check_win()
 
@@ -365,7 +375,7 @@ class TicTacToe:
                   40,
                   "#000000",
                   (screen_width / 2, screen_height - 160))
-        elif not self.player_can_play and self.game_type != 'jcj' and self.winner == None:
+        elif not self.player_can_play and self.game_type != 'jcj' and self.winner == None and self.empty_case_count >= 1:
             draw_text(self.display_surface,
                 "Computer Turn",
                 40,
@@ -374,8 +384,6 @@ class TicTacToe:
 
             if now - self.last_time >= 2000:
                 self.last_time = now
-                self.computer()
-
-                
+                self.computer()            
 
         self.case_group.draw(self.display_surface)
