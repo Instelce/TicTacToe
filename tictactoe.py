@@ -1,6 +1,6 @@
 from random import randint
 import time
-from numpy import diagonal
+import json
 
 import pygame
 
@@ -326,7 +326,7 @@ class TicTacToe:
         back_button = Button(self.display_surface,
                              self.create_start_menu, "Back To Menu", 400, 50, self.mouse)
         back_button.alignement('bottom')
-        back_button.draw(back_button.pos)
+        back_button.draw()
 
     def display_text(self):
          # Title
@@ -354,6 +354,16 @@ class TicTacToe:
                   40,
                   "#000000",
                   (screen_width / 2, screen_height - 160))
+
+    def game_data_storage(self):
+        file_data = "data/stats.json"
+        
+        # Get data
+        with open(file_data, "r") as file:
+            data = json.load(file)
+
+        with open(file_data, 'w') as outfile:
+            json.dump(data, outfile)
     def run(self):
         now = pygame.time.get_ticks()
         grid_is_draw = False

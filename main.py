@@ -3,14 +3,16 @@ import sys
 
 from settings import *
 from tictactoe import TicTacToe
-from menu import Menu, Button
+from menu import Menu, Button, Text
 from mouse import Mouse
 
 
 class Game:
     def __init__(self):
         self.mouse = Mouse(screen)
-        self.status = 'game'
+        self.last_time = pygame.time.get_ticks()
+
+        self.status = 'menu'
         self.tictactoe = TicTacToe(screen, 'computer simple', self.mouse, self.create_menu)
         self.start_menu = Menu(screen,
 							   "Tic Tac Toe",
@@ -35,22 +37,36 @@ class Game:
 
     def create_menu(self):
         self.start_menu = Menu(screen,
-							   "Tic Tac Toe",
-							   [
-								   Button(screen,
-										  self.create_simple_computer_tictactoe, "Jouer contre ordinateur simple", 400, 50, self.mouse),
-								   Button(screen,
-										  self.create_expert_computer_tictactoe, "Jouer contre ordinateur expert", 400, 50, self.mouse),
-								   Button(screen,
-										  self.create_jcj_tictactoe, "Joueur contre joueur", 400, 50, self.mouse),
-								   Button(screen,
-										  self.create_menu, "Stats", 400, 50, self.mouse),
-								   Button(screen,
-										  self.create_menu, "Dernière partie", 400, 50, self.mouse),
-								   Button(screen,
-										  self.quit_game, "Quitter", 400, 50, self.mouse)
-							   ])
+                            "Tic Tac Toe",
+                            [
+                                Button(screen,
+                                        self.create_simple_computer_tictactoe, "Jouer contre ordinateur simple", 400, 50, self.mouse),
+                                Button(screen,
+                                        self.create_expert_computer_tictactoe, "Jouer contre ordinateur expert", 400, 50, self.mouse),
+                                Button(screen,
+                                        self.create_jcj_tictactoe, "Joueur contre joueur", 400, 50, self.mouse),
+                                Button(screen,
+                                        self.create_stats_screen, "Stats", 400, 50, self.mouse),
+                                Button(screen,
+                                        self.create_menu, "Dernière partie", 400, 50, self.mouse),
+                                Button(screen,
+                                        self.quit_game, "Quitter", 400, 50, self.mouse)
+                            ])
         self.status = 'menu'
+    
+    def create_stats_screen(self):
+        self.stats_screen = Menu(screen,
+							   "Statistics",
+							   [
+								   Text("Victory over the simple computer"),
+								   Text("Victory over the expert computer"),
+								   Text("Number of games played"),
+								   Text("Games won by player X"),
+								   Text("Games won by player O"),
+								   Button(screen,
+										  self.create_menu, "Back", 400, 50, self.mouse)
+							   ])
+        self.status = 'stats_screen'
 
     def create_jcj_tictactoe(self):
         self.tictactoe = TicTacToe(screen, 'jcj', self.mouse, self.create_menu)
@@ -67,6 +83,8 @@ class Game:
     def run(self):
         if self.status == 'menu':
             self.start_menu.run()
+        elif self.status == 'stats_screen':
+            self.stats_screen.run()
         else:
             self.tictactoe.run()
             
