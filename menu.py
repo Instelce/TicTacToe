@@ -1,8 +1,10 @@
 import pygame
 import sys
+import json
 
 from settings import *
-from support import get_font
+from support import get_font, print_matrix
+from tiles import Case
 
 pygame.font.init()
 
@@ -72,18 +74,54 @@ class Menu:
             self.draw_buttons()
 
 
-class Matrix(Menu):
-    def __init__(self, surface, title, matrix, component_list, background_image=None):
+class MatrixMenu(Menu):
+    def __init__(self, surface, title, games_data, component_list, background_image=None):
         super().__init__(surface, title, component_list, background_image)
-        self.matrix = matrix
+        self.games_data = games_data
+        self.game_data = games_data[f"game_data_{len(games_data)-1}"][0]
+        self.matrix = self.game_data['matrix']
+        self.index = self.game_data['index']
         self.tile_size = 100
         self.round_image = pygame.image.load(
             'graphics/round.png').convert_alpha()
         self.cross_image = pygame.image.load(
             'graphics/cross.png').convert_alpha()
         self.grid_tiles = []
+        self.case_group = pygame.sprite.Group()
+
+        self.component_list[0].pos = ((screen_width / 2), (screen_height / 2) + 200)
+
+        # Arrows
+        self.right_arrow = Button(self.display_surface, self.increase_game_index, "+", 50, 50, 
+        ((screen_width/2) + 200, (screen_height/2) - 20), 'graphics/button/arrow/button_normal.png', 'graphics/button/arrow/button_hover.png')
+        self.left_arrow = Button(self.display_surface, self.decrease_game_index, "-", 50, 50, 
+        ((screen_width/2) - 240, (screen_height/2) - 20), 'graphics/button/arrow/left/button_normal.png', 'graphics/button/arrow/left/button_hover.png')
 
         self.create_grid()
+    
+    def draw_arrows(self):
+        if len(self.games_data) != self.index + 1:
+            self.right_arrow.draw()
+        if self.index > 0:
+            self.left_arrow.draw()
+    
+    def increase_game_index(self):
+        self.index += 1
+        # Update data
+        self.game_data = self.games_data[f"game_data_{self.index}"][0]
+        self.matrix = self.game_data['matrix']
+        print_matrix(self.matrix)
+        self.case_group = pygame.sprite.Group()
+        self.draw_grid()
+    
+    def decrease_game_index(self):
+        self.index -= 1
+        # Update data
+        self.game_data = self.games_data[f"game_data_{self.index}"][0]
+        self.matrix = self.game_data['matrix']
+        print_matrix(self.matrix)
+        self.case_group = pygame.sprite.Group()
+        self.draw_grid()
     
     def create_grid(self):
         for i in range(0, 3):
@@ -95,39 +133,48 @@ class Matrix(Menu):
             self.grid_tiles.append(row)
     
     def draw_grid(self):
-        now = pygame.time.get_ticks()
-
-        if now - self.last_time >= 200:
-            for row in self.grid_tiles:
-                for tile in row:
-                    pygame.draw.rect(self.display_surface,
-                                    "black", tile, 2)
-    
-    def draw_symbol(self):
-        for row_index, row in enumerate(self.matrix):
-            for col_index, val in enumerate(row):
+        for row in self.grid_tiles:
+            for tile in row:
+                pygame.draw.rect(self.display_surface,
+                                "black", tile, 2)
+                    
+        for row_index, matrix_row in enumerate(self.matrix):
+            for col_index, val in enumerate(matrix_row):
                 if val == 'X':
-                    pass
+                    tile = Case(80, self.grid_tiles[row_index][col_index].x + 10,
+                            self.grid_tiles[row_index][col_index].y + 10, self.cross_image)
+                    self.case_group.add(tile)
                 if val == 'O':
-                    pass
+                    tile = Case(80, self.grid_tiles[row_index][col_index].x + 10,
+                            self.grid_tiles[row_index][col_index].y + 10, self.round_image)
+                    self.case_group.add(tile)
 
     def run(self):
+        now = pygame.time.get_ticks()
+
+        print("Index :", self.index)
+
         self.draw_title()
-        self.draw_buttons()
         self.draw_grid()
-        
+        self.draw_arrows()
+        self.case_group.draw(self.display_surface)
+
+        if now - self.last_time >= 100:
+            self.position_buttons()
+            self.draw_buttons()        
 
 class Button:
-    def __init__(self, surface, callback, text, width, height, mouse, pos=None, normal_image='graphics/button/button_normal.png', hover_image='graphics/button/button_hover.png'):
+    def __init__(self, surface, callback, text, width, height, pos=None, normal_image='graphics/button/button_normal.png', hover_image='graphics/button/button_hover.png'):
         super().__init__()
         self.width = width
         self.height = height
         self.display_surface = surface
         self.text = text
-        self.mouse = mouse
         self.callback = callback
         self.normal_image = normal_image
         self.hover_image = hover_image
+        self.is_click = False
+        self.last_time = pygame.time.get_ticks()
 
         # Font and image
         self.font = get_font(30)
@@ -148,19 +195,20 @@ class Button:
 
     def check_click(self):
         mouse_pos = pygame.mouse.get_pos()
+        now = pygame.time.get_ticks()
         if self.rect.collidepoint(mouse_pos):
             # Change color of button on hover
-            self.mouse.change_status('hover')
             self.image = pygame.image.load(self.hover_image).convert_alpha()
             self.display_surface.blit(self.image, self.rect)
             self.display_surface.blit(self.text_surf, self.text_rect)
-
-            if pygame.mouse.get_pressed()[0]:
+        
+            if pygame.mouse.get_pressed()[0] and not self.is_click:
                 print('CLICK', self.text)
                 if self.callback != None:
                     self.callback()
+                    self.is_click = True
         else:
-            self.mouse.change_status('normal')
+            self.is_click = False
             self.image = pygame.image.load(self.normal_image).convert_alpha()
             self.display_surface.blit(self.image, self.rect)
             self.display_surface.blit(self.text_surf, self.text_rect)
@@ -174,6 +222,10 @@ class Button:
             y = (screen_height - 80) - self.text_surf.get_size()[1]
         
         self.pos = (self.pos[0], y)
+
+    def reverse(self):
+        self.image = pygame.image.load(self.normal_image).convert_alpha()
+        self.image = pygame.transform.rotate(self.image, 180)
 
     def draw(self):
         # Update rect end text

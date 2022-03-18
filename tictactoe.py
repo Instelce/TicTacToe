@@ -11,11 +11,10 @@ from tiles import Case
 
 
 class TicTacToe:
-    def __init__(self, surface, game_type, mouse, create_start_menu):
+    def __init__(self, surface, game_type, create_start_menu):
         super(TicTacToe, self).__init__()
         self.display_surface = surface
         self.game_type = game_type
-        self.mouse = mouse
         self.create_start_menu = create_start_menu
 
         self.tictactoe_matrix = create_matrix(3, 3)
@@ -309,7 +308,7 @@ class TicTacToe:
 
     def draw_back_button(self):
         back_button = Button(self.display_surface,
-                             self.create_start_menu, "Back To Menu", 400, 50, self.mouse)
+                             self.create_start_menu, "Back To Menu", 400, 50)
         back_button.alignement('bottom')
         back_button.draw()
 
@@ -334,6 +333,7 @@ class TicTacToe:
                   "#000000",
                   (screen_width / 2, screen_height - 160))
         elif self.winner == None and self.empty_case_count == 0:
+            self.winner = 'Equality'
             draw_text(self.display_surface,
                   f"Equality",
                   40,
@@ -399,7 +399,7 @@ class TicTacToe:
         if grid_is_draw and self.winner == None and self.empty_case_count >= 1:
             self.check_grid()
             self.check_win()
-        
+                
         if self.winner != None and not self.data_is_update:
             self.update_stats_data()
             self.update_games_data()
