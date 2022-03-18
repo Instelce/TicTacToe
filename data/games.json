@@ -1,0 +1,1 @@
+{"game_data_0": [{"index": 0, "matrix": [["X", "X", "O"], ["", "O", ""], ["O", "", "X"]], "winner": "O"}], "game_data_1": [{"index": 1, "matrix": [["X", "O", "X"], ["O", "X", ""], ["X", "", "O"]], "winner": "X"}], "game_data_2": [{"index": 2, "matrix": [["X", "O", "X"], ["", "O", "X"], ["O", "", "X"]], "winner": "X"}]}

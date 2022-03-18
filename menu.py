@@ -72,6 +72,51 @@ class Menu:
             self.draw_buttons()
 
 
+class Matrix(Menu):
+    def __init__(self, surface, title, matrix, component_list, background_image=None):
+        super().__init__(surface, title, component_list, background_image)
+        self.matrix = matrix
+        self.tile_size = 100
+        self.round_image = pygame.image.load(
+            'graphics/round.png').convert_alpha()
+        self.cross_image = pygame.image.load(
+            'graphics/cross.png').convert_alpha()
+        self.grid_tiles = []
+
+        self.create_grid()
+    
+    def create_grid(self):
+        for i in range(0, 3):
+            row = []
+            for j in range(0, 3):
+                tile = pygame.Rect((screen_width / 2) - 150 + j * self.tile_size,
+                                   (screen_height / 2) - 150 + i * self.tile_size, self.tile_size, self.tile_size)
+                row.append(tile)
+            self.grid_tiles.append(row)
+    
+    def draw_grid(self):
+        now = pygame.time.get_ticks()
+
+        if now - self.last_time >= 200:
+            for row in self.grid_tiles:
+                for tile in row:
+                    pygame.draw.rect(self.display_surface,
+                                    "black", tile, 2)
+    
+    def draw_symbol(self):
+        for row_index, row in enumerate(self.matrix):
+            for col_index, val in enumerate(row):
+                if val == 'X':
+                    pass
+                if val == 'O':
+                    pass
+
+    def run(self):
+        self.draw_title()
+        self.draw_buttons()
+        self.draw_grid()
+        
+
 class Button:
     def __init__(self, surface, callback, text, width, height, mouse, pos=None, normal_image='graphics/button/button_normal.png', hover_image='graphics/button/button_hover.png'):
         super().__init__()

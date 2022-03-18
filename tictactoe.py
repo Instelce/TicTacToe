@@ -34,6 +34,8 @@ class TicTacToe:
         self.already_set = False
         self.winner = None
         self.player_can_play = True
+        self.data_is_update = False
+
 
         self.last_time = pygame.time.get_ticks()
 
@@ -110,6 +112,12 @@ class TicTacToe:
         if good_case:
             return case
 
+    def fill_case(self, pos, image, symbol):
+        tile = Case(80, self.grid_tiles[pos[0]][pos[1]].x + 10,
+                            self.grid_tiles[pos[0]][pos[1]].y + 10, image)
+        self.case_group.add(tile)
+        self.tictactoe_matrix[pos[0]][pos[1]] = symbol
+
     def computer(self):
         can_row_block = False
         can_col_block = False
@@ -165,52 +173,29 @@ class TicTacToe:
 
                     if row_or_col_or_diagonal == 1:
                         # Row block
-                        tile = Case(80, self.grid_tiles[row_case_pos[0]][row_case_pos[1]].x + 10,
-                                            self.grid_tiles[row_case_pos[0]][row_case_pos[1]].y + 10, self.round_image)
-                        self.case_group.add(tile)
-                        self.tictactoe_matrix[row_case_pos[0]][row_case_pos[1]] = 'O'
+                        self.fill_case(row_case_pos, self.round_image, 'O')
                     elif row_or_col_or_diagonal == 2:
                         # Col block
-                        tile = Case(80, self.grid_tiles[col_case_pos[0]][col_case_pos[1]].x + 10,
-                                            self.grid_tiles[col_case_pos[0]][col_case_pos[1]].y + 10, self.round_image)
-                        self.case_group.add(tile)
-                        self.tictactoe_matrix[col_case_pos[0]][col_case_pos[1]] = 'O'
+                        self.fill_case(col_case_pos, self.round_image, 'O')
                     elif row_or_col_or_diagonal == 3:
                         # Diagonal right block
-                        tile = Case(80, self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].x + 10,
-                                            self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].y + 10, self.round_image)
-                        self.case_group.add(tile)
-                        self.tictactoe_matrix[diagonal_right_pos[0]][diagonal_right_pos[1]] = 'O'
+                        self.fill_case(diagonal_right_pos, self.round_image, 'O')
                     elif row_or_col_or_diagonal == 4:
-                         # Diagonal left block
-                        tile = Case(80, self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].x + 10,
-                                                self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].y + 10, self.round_image)
-                        self.case_group.add(tile)
-                        self.tictactoe_matrix[diagonal_left_pos[0]][diagonal_left_pos[1]] = 'O'
+                        # Diagonal left block
+                        self.fill_case(diagonal_left_pos, self.round_image, 'O')
                 elif can_row_block:
                     # Row block
-                    tile = Case(80, self.grid_tiles[row_case_pos[0]][row_case_pos[1]].x + 10,
-                                            self.grid_tiles[row_case_pos[0]][row_case_pos[1]].y + 10, self.round_image)
-                    self.case_group.add(tile)
-                    self.tictactoe_matrix[row_case_pos[0]][row_case_pos[1]] = 'O'
+                    self.fill_case(row_case_pos, self.round_image, 'O')
                 elif can_col_block:
                     # Col block
-                    tile = Case(80, self.grid_tiles[col_case_pos[0]][col_case_pos[1]].x + 10,
-                                            self.grid_tiles[col_case_pos[0]][col_case_pos[1]].y + 10, self.round_image)
-                    self.case_group.add(tile)
-                    self.tictactoe_matrix[col_case_pos[0]][col_case_pos[1]] = 'O'
+                                            self.fill_case(col_case_pos, self.round_image, 'O')
+
                 elif can_diagonal_right_block:
                     # Diagonal right block
-                    tile = Case(80, self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].x + 10,
-                                            self.grid_tiles[diagonal_right_pos[0]][diagonal_right_pos[1]].y + 10, self.round_image)
-                    self.case_group.add(tile)
-                    self.tictactoe_matrix[diagonal_right_pos[0]][diagonal_right_pos[1]] = 'O'
+                    self.fill_case(diagonal_right_pos, self.round_image, 'O')
                 elif can_diagonal_left_block:
                     # Diagonal left block
-                    tile = Case(80, self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].x + 10,
-                                            self.grid_tiles[diagonal_left_pos[0]][diagonal_left_pos[1]].y + 10, self.round_image)
-                    self.case_group.add(tile)
-                    self.tictactoe_matrix[diagonal_left_pos[0]][diagonal_left_pos[1]] = 'O'
+                    self.fill_case(diagonal_left_pos, self.round_image, 'O')
                 else:
                     # Random case
                     case = self.get_random_case()
@@ -355,15 +340,51 @@ class TicTacToe:
                   "#000000",
                   (screen_width / 2, screen_height - 160))
 
-    def game_data_storage(self):
+    def update_stats_data(self):
         file_data = "data/stats.json"
         
         # Get data
         with open(file_data, "r") as file:
             data = json.load(file)
 
+        print(data)
+
+        if self.game_type == 'computer simple' and self.winner == 'X':
+            data['victory_over_simple_computer'] += 1
+        if self.game_type == 'computer expert' and self.winner == 'X':
+            data['victory_over_expert_computer'] += 1
+        if self.winner == 'X':
+            data['won_by_X'] += 1
+        if self.winner == 'O':
+            data['won_by_O'] += 1
+
+        data['game_played'] += 1
+
         with open(file_data, 'w') as outfile:
             json.dump(data, outfile)
+
+    def update_games_data(self):
+        file_data = "data/games.json"
+
+        with open(file_data, 'r') as games_file:
+            data = json.load(games_file)
+
+        if len(data) == 0:
+            self.game_index = 0
+        else:
+            # Get the last game index
+            self.game_index = data[f'game_data_{str(len(data) - 1)}'][0]['index'] + 1
+
+        data[f'game_data_{self.game_index}'] = []
+        data[f'game_data_{self.game_index}'].append({
+            'index': self.game_index,
+            'matrix': self.tictactoe_matrix,
+            'winner': self.winner,
+        })
+
+        with open(file_data, 'w') as outfile:
+            json.dump(data, outfile)
+
     def run(self):
         now = pygame.time.get_ticks()
         grid_is_draw = False
@@ -378,6 +399,11 @@ class TicTacToe:
         if grid_is_draw and self.winner == None and self.empty_case_count >= 1:
             self.check_grid()
             self.check_win()
+        
+        if self.winner != None and not self.data_is_update:
+            self.update_stats_data()
+            self.update_games_data()
+            self.data_is_update = True
 
         if self.player_can_play and self.game_type != 'jcj' and self.winner == None:
             draw_text(self.display_surface,

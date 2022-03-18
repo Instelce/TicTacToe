@@ -13,6 +13,7 @@ def draw_text(surface, text, size, color, pos):
     rect = surf.get_rect(
         center=pos)
     surface.blit(surf, rect)
+    
 def create_matrix(width, height):
     matrix = []
     for i in range(height):
