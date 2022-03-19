@@ -211,6 +211,7 @@ class Button:
     def check_click(self):
         mouse_pos = pygame.mouse.get_pos()
         now = pygame.time.get_ticks()
+
         if self.rect.collidepoint(mouse_pos):
             # Change color of button on hover
             self.image = pygame.image.load(self.hover_image).convert_alpha()

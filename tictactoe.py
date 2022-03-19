@@ -1,3 +1,4 @@
+import enum
 from random import randint
 import time
 import json
@@ -333,6 +334,8 @@ class TicTacToe:
         self.x_col_count = {}
         self.o_col_count = {}
 
+        highlight_color = "#9038C1"
+
         # Init value
         for row_index, row in enumerate(self.tictactoe_matrix):
             self.x_row_count[row_index] = 0
@@ -360,20 +363,32 @@ class TicTacToe:
         print_matrix(self.tictactoe_matrix)
 
         # Row check
-        for row in self.x_row_count:
-            if self.x_row_count[row] == 3:
+        for count in self.x_row_count:
+            if self.x_row_count[count] == 3:
                 self.winner = 'X'
-        for row in self.o_row_count:
-            if self.o_row_count[row] == 3:
+                for col_index, col in enumerate(self.tictactoe_matrix[count]):
+                    pygame.draw.rect(self.display_surface,
+                                    highlight_color, self.grid_tiles[count][col_index], 4)                   
+        for count in self.o_row_count:
+            if self.o_row_count[count] == 3:
                 self.winner = 'O'
+                for col_index, col in enumerate(self.tictactoe_matrix[count]):
+                    pygame.draw.rect(self.display_surface,
+                                    highlight_color, self.grid_tiles[count][col_index], 4)   
 
         # Column check
-        for col in self.x_col_count:
-            if self.x_col_count[col] == 3:
+        for count in self.x_col_count:
+            if self.x_col_count[count] == 3:
                 self.winner = 'X'
-        for col in self.o_col_count:
-            if self.o_col_count[col] == 3:
+                for col_index, col in enumerate(self.tictactoe_col_matrix[count]):
+                    pygame.draw.rect(self.display_surface,
+                                    highlight_color, self.grid_tiles[col_index][count], 4) 
+        for count in self.o_col_count:
+            if self.o_col_count[count] == 3:
                 self.winner = 'O'
+                for col_index, col in enumerate(self.tictactoe_col_matrix[count]):
+                    pygame.draw.rect(self.display_surface,
+                                    highlight_color, self.grid_tiles[col_index][count], 4) 
 
         # Diagonal check
         self.diagonal_right = []
@@ -382,7 +397,6 @@ class TicTacToe:
         self.o_diagonal_right_count = 0
         self.x_diagonal_left_count = 0
         self.o_diagonal_left_count = 0
-
 
         for row_index, row in enumerate(self.tictactoe_matrix):
             for col_index, val in enumerate(row):
@@ -417,6 +431,25 @@ class TicTacToe:
         elif self.o_diagonal_right_count == 3 or self.o_diagonal_left_count == 3:
             self.winner = 'O'
 
+        if self.x_diagonal_right_count == 3 or self.o_diagonal_right_count == 3:
+            for row_index, row in enumerate(self.tictactoe_matrix):
+                for col_index, col in enumerate(row):
+                    if row_index == col_index:
+                        pygame.draw.rect(self.display_surface,
+                                        highlight_color, self.grid_tiles[row_index][col_index], 4) 
+        if self.x_diagonal_left_count == 3 or self.o_diagonal_left_count == 3:
+            for row_index, row in enumerate(tictactoe_matrix_reverse):
+                for col_index, col in enumerate(row):
+                    if row_index == 0:
+                        pygame.draw.rect(self.display_surface,
+                                        highlight_color, self.grid_tiles[0][2], 4) 
+                    elif row_index == 1:
+                        pygame.draw.rect(self.display_surface,
+                                        highlight_color, self.grid_tiles[1][1], 4) 
+                    elif row_index == 2:
+                        pygame.draw.rect(self.display_surface,
+                                        highlight_color, self.grid_tiles[2][0], 4) 
+
     def change_player(self):
         if self.player == 'X':
             self.player = 'O'
@@ -443,6 +476,12 @@ class TicTacToe:
                   "#000000",
                   (screen_width / 2, 140))
         # Win text
+        if self.winner == None and self.game_type == 'jcj':
+            draw_text(self.display_surface,
+                  f"{self.player} player turn",
+                  40,
+                  "#000000",
+                  (screen_width / 2, screen_height - 160))
         if self.winner != None:
             draw_text(self.display_surface,
                   f"Winner is {self.winner} player",
@@ -516,7 +555,8 @@ class TicTacToe:
 
         if grid_is_draw and self.winner == None and self.empty_case_count >= 1:
             self.check_grid()
-            self.check_win()
+
+        self.check_win()
                 
         if self.winner != None and not self.data_is_update:
             self.update_stats_data()
