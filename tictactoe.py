@@ -92,7 +92,7 @@ class TicTacToe:
 
                             self.case_group.add(tile)
                             self.empty_case_count -= 1
-                            if self.game_type == 'computer simple' or self.game_type == 'computer expert':
+                            if self.game_type == 'simple computer' or self.game_type == 'computer expert':
                                 self.player_can_play = False
                             if self.game_type == 'jcj':
                                 self.change_player()
@@ -118,83 +118,200 @@ class TicTacToe:
         self.tictactoe_matrix[pos[0]][pos[1]] = symbol
 
     def computer(self):
+        can_win = False
+        can_row_win = False
+        can_col_win = False
+        can_diagonal_right_win = False
+        can_diagonal_left_win = False
+        can_win_count = 0
+
+        can_block = False
         can_row_block = False
         can_col_block = False
         can_diagonal_right_block = False
         can_diagonal_left_block = False
         can_block_count = 0
 
-        if self.game_type == 'computer simple':
+        if self.game_type == 'simple computer':
             if not self.player_can_play:
-                for count in self.x_row_count:
-                    if self.x_row_count[count] == 2:
-                        # Block
+                # WIN
+                for count in self.o_row_count:
+                    if self.o_row_count[count] == 2:
+                        # Row win
                         for col_index, val in enumerate(self.tictactoe_matrix[count]):
                             if val == '':
-                                print(f"Bloque Ligne {count+1} and check {col_index+1} case")
-                                row_case_pos = [count, col_index]
-                                can_block_count += 1
-                                can_row_block = True
-                for count in self.x_col_count:
-                    if self.x_col_count[count] == 2:
-                        # Block
+                                print(f"Win Ligne {count+1} and check {col_index+1} case")
+                                row_win_case_pos = [count, col_index]
+                                can_win_count += 1
+                                can_row_win = True
+                                can_win = True
+                for count in self.o_col_count:
+                    if self.o_col_count[count] == 2:
+                        # Col win
                         for col_index, val in enumerate(self.tictactoe_col_matrix[count]):
                             if val == '':
-                                print(f"Bloque Colonne {count+1} and check {col_index+1} case")
-                                col_case_pos = [col_index, count]
+                                print(f"Win Colonne {count+1} and check {col_index+1} case")
+                                col_win_case_pos = [col_index, count]
+                                can_win_count += 1
+                                can_col_win = True
+                                can_win = True
+                if self.o_diagonal_right_count == 2:
+                    for index, val in enumerate(self.diagonal_right):
+                        if val == '':
+                            print(f"Win Right Diagonal {index} ; {index}")
+                            diagonal_right_win_pos = [index, index]
+                            can_win_count += 1
+                            can_diagonal_right_win = True
+                            can_win = True
+                if self.o_diagonal_left_count == 2:
+                    for index, val in enumerate(self.diagonal_left):
+                        if val == '':
+                            print(f"Win Left Diagonal {index} ; {index}")
+                            if index == 0:
+                                diagonal_left_win_pos = [0, 2]
+                            elif index == 2:
+                                diagonal_left_win_pos = [2, 0]
+                            else:
+                                diagonal_left_win_pos = [index, index]
+
+                            can_win_count += 1
+                            can_diagonal_left_win = True
+                            can_win = True
+                # BLOCK
+                for count in self.x_row_count:
+                    if self.x_row_count[count] == 2:
+                        # Row Block
+                        for col_index, val in enumerate(self.tictactoe_matrix[count]):
+                            if val == '':
+                                print(f"Block Ligne {count+1} and check {col_index+1} case")
+                                row_block_case_pos = [count, col_index]
+                                can_block_count += 1
+                                can_row_block = True
+                                can_block = True
+                for count in self.x_col_count:
+                    if self.x_col_count[count] == 2:
+                        # Col Block
+                        for col_index, val in enumerate(self.tictactoe_col_matrix[count]):
+                            if val == '':
+                                print(f"Block Colonne {count+1} and check {col_index+1} case")
+                                col_block_case_pos = [col_index, count]
                                 can_block_count += 1
                                 can_col_block = True
+                                can_block = True
                 if self.x_diagonal_right_count == 2:
-                    for index, val in enumerate(self.x_diagonal_right):
+                    for index, val in enumerate(self.diagonal_right):
                         if val == '':
-                            print(f"Bloque Right Diagonal {index} ; {index}")
-                            diagonal_right_pos = [index, index]
+                            print(f"Block Right Diagonal {index} ; {index}")
+                            diagonal_right_block_pos = [index, index]
                             can_block_count += 1
                             can_diagonal_right_block = True
+                            can_block = True
                 if self.x_diagonal_left_count == 2:
-                    print(self.x_diagonal_left)
-                    for index, val in enumerate(self.x_diagonal_left):
+                    print(self.diagonal_left)
+                    for index, val in enumerate(self.diagonal_left):
                         if val == '':
-                            print(f"Bloque Left Diagonal {index} ; {index}")
+                            print(f"Block Left Diagonal {index} ; {index}")
                             if index == 0:
-                                diagonal_left_pos = [0, 2]
+                                diagonal_left_block_pos = [0, 2]
                             elif index == 2:
-                                diagonal_left_pos = [2, 0]
+                                diagonal_left_block_pos = [2, 0]
                             else:
-                                diagonal_left_pos = [index, index]
+                                diagonal_left_block_pos = [index, index]
 
                             can_block_count += 1
                             can_diagonal_left_block = True
+                            can_block = True
+                
+                if can_win and can_block:
+                    # Win
+                    if can_win_count > 1:
+                        row_or_col_or_diagonal = randint(1, can_win_count)
+                        print("win Count :", can_win_count, "| Choice :", row_or_col_or_diagonal)
 
-                if can_block_count > 1:
-                    row_or_col_or_diagonal = randint(1, can_block_count)
-                    print("Block Count :", can_block_count, "| Choice :", row_or_col_or_diagonal)
+                        if row_or_col_or_diagonal == 1:
+                            # Row win
+                            self.fill_case(row_win_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 2:
+                            # Col win
+                            self.fill_case(col_win_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 3:
+                            # Diagonal right win
+                            self.fill_case(diagonal_right_win_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 4:
+                            # Diagonal left win
+                            self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                    elif can_row_win:
+                        # Row win
+                        self.fill_case(row_win_case_pos, self.round_image, 'O')
+                    elif can_col_win:
+                        # Col win
+                        self.fill_case(col_win_case_pos, self.round_image, 'O')
+                    elif can_diagonal_right_win:
+                        # Diagonal right win
+                        self.fill_case(diagonal_right_win_pos, self.round_image, 'O')
+                    elif can_diagonal_left_win:
+                        # Diagonal left win
+                        self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                elif can_win:
+                    # Win
+                    if can_win_count > 1:
+                        row_or_col_or_diagonal = randint(1, can_win_count)
+                        print("win Count :", can_win_count, "| Choice :", row_or_col_or_diagonal)
 
-                    if row_or_col_or_diagonal == 1:
+                        if row_or_col_or_diagonal == 1:
+                            # Row win
+                            self.fill_case(row_win_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 2:
+                            # Col win
+                            self.fill_case(col_win_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 3:
+                            # Diagonal right win
+                            self.fill_case(diagonal_right_win_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 4:
+                            # Diagonal left win
+                            self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                    elif can_row_win:
+                        # Row win
+                        self.fill_case(row_win_case_pos, self.round_image, 'O')
+                    elif can_col_win:
+                        # Col win
+                        self.fill_case(col_win_case_pos, self.round_image, 'O')
+                    elif can_diagonal_right_win:
+                        # Diagonal right win
+                        self.fill_case(diagonal_right_win_pos, self.round_image, 'O')
+                    elif can_diagonal_left_win:
+                        # Diagonal left win
+                        self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                elif can_block:
+                    # Block
+                    if can_block_count > 1:
+                        row_or_col_or_diagonal = randint(1, can_block_count)
+                        print("Block Count :", can_block_count, "| Choice :", row_or_col_or_diagonal)
+
+                        if row_or_col_or_diagonal == 1:
+                            # Row block
+                            self.fill_case(row_block_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 2:
+                            # Col block
+                            self.fill_case(col_block_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 3:
+                            # Diagonal right block
+                            self.fill_case(diagonal_right_block_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 4:
+                            # Diagonal left block
+                            self.fill_case(diagonal_left_block_pos, self.round_image, 'O')
+                    elif can_row_block:
                         # Row block
-                        self.fill_case(row_case_pos, self.round_image, 'O')
-                    elif row_or_col_or_diagonal == 2:
+                        self.fill_case(row_block_case_pos, self.round_image, 'O')
+                    elif can_col_block:
                         # Col block
-                        self.fill_case(col_case_pos, self.round_image, 'O')
-                    elif row_or_col_or_diagonal == 3:
+                        self.fill_case(col_block_case_pos, self.round_image, 'O')
+                    elif can_diagonal_right_block:
                         # Diagonal right block
-                        self.fill_case(diagonal_right_pos, self.round_image, 'O')
-                    elif row_or_col_or_diagonal == 4:
+                        self.fill_case(diagonal_right_block_pos, self.round_image, 'O')
+                    elif can_diagonal_left_block:
                         # Diagonal left block
-                        self.fill_case(diagonal_left_pos, self.round_image, 'O')
-                elif can_row_block:
-                    # Row block
-                    self.fill_case(row_case_pos, self.round_image, 'O')
-                elif can_col_block:
-                    # Col block
-                                            self.fill_case(col_case_pos, self.round_image, 'O')
-
-                elif can_diagonal_right_block:
-                    # Diagonal right block
-                    self.fill_case(diagonal_right_pos, self.round_image, 'O')
-                elif can_diagonal_left_block:
-                    # Diagonal left block
-                    self.fill_case(diagonal_left_pos, self.round_image, 'O')
+                        self.fill_case(diagonal_left_block_pos, self.round_image, 'O')
                 else:
                     # Random case
                     case = self.get_random_case()
@@ -259,23 +376,23 @@ class TicTacToe:
                 self.winner = 'O'
 
         # Diagonal check
-        self.x_diagonal_right = []
-        self.x_diagonal_left = []
+        self.diagonal_right = []
+        self.diagonal_left = []
         self.x_diagonal_right_count = 0
-        o_diagonal_right_count = 0
+        self.o_diagonal_right_count = 0
         self.x_diagonal_left_count = 0
-        o_diagonal_left_count = 0
+        self.o_diagonal_left_count = 0
 
 
         for row_index, row in enumerate(self.tictactoe_matrix):
             for col_index, val in enumerate(row):
                 if col_index == row_index:
-                    self.x_diagonal_right.append(val)
+                    self.diagonal_right.append(val)
 
                 if col_index == row_index and val == 'X':
                     self.x_diagonal_right_count += 1
                 elif col_index == row_index and val == 'O':
-                    o_diagonal_right_count += 1
+                    self.o_diagonal_right_count += 1
 
         print("Diagonal Right : ", self.x_diagonal_right_count)
         
@@ -288,16 +405,16 @@ class TicTacToe:
         for row_index, row in enumerate(tictactoe_matrix_reverse):
             for col_index, val in enumerate(row):
                 if col_index == row_index:
-                    self.x_diagonal_left.append(val)
+                    self.diagonal_left.append(val)
 
                 if col_index == row_index and val == 'X':
                     self.x_diagonal_left_count += 1
                 elif col_index == row_index and val == 'O':
-                    o_diagonal_left_count += 1
+                    self.o_diagonal_left_count += 1
 
         if self.x_diagonal_right_count == 3 or self.x_diagonal_left_count == 3:
             self.winner = 'X'
-        elif o_diagonal_right_count == 3 or o_diagonal_left_count == 3:
+        elif self.o_diagonal_right_count == 3 or self.o_diagonal_left_count == 3:
             self.winner = 'O'
 
     def change_player(self):
@@ -308,7 +425,7 @@ class TicTacToe:
 
     def draw_back_button(self):
         back_button = Button(self.display_surface,
-                             self.create_start_menu, "Back To Menu", 400, 50)
+                             self.create_start_menu, "Back To Menu", 400, 50, None, True)
         back_button.alignement('bottom')
         back_button.draw()
 
@@ -349,7 +466,7 @@ class TicTacToe:
 
         print(data)
 
-        if self.game_type == 'computer simple' and self.winner == 'X':
+        if self.game_type == 'simple computer' and self.winner == 'X':
             data['victory_over_simple_computer'] += 1
         if self.game_type == 'computer expert' and self.winner == 'X':
             data['victory_over_expert_computer'] += 1
@@ -380,6 +497,7 @@ class TicTacToe:
             'index': self.game_index,
             'matrix': self.tictactoe_matrix,
             'winner': self.winner,
+            'game_type': self.game_type,
         })
 
         with open(file_data, 'w') as outfile:

@@ -44,20 +44,20 @@ class Menu:
             center=(screen_width / 2, screen_height / 2 - 200))
         self.display_surface.blit(title_surf, title_rect)
 
-    def position_buttons(self):
+    def position_components(self):
         is_repositioned = False
         if not is_repositioned:
             temp_pos = self.component_list[0].pos
             for i in range(len(self.component_list)):
-                button = self.component_list[i]
-                button_pos = list(button.pos)
-                button_pos[1] = temp_pos[1] + self.component_gap * i
-                button.pos = tuple(button_pos)
+                component = self.component_list[i]
+                component_pos = list(component.pos)
+                component_pos[1] = temp_pos[1] + self.component_gap * i
+                component.pos = tuple(component_pos)
                 is_repositioned = True
 
-    def draw_buttons(self):
-        for button in self.component_list:
-            button.draw()
+    def draw_components(self):
+        for component in self.component_list:
+            component.draw()
 
     def run(self):
         now = pygame.time.get_ticks()
@@ -70,8 +70,8 @@ class Menu:
 
         if now - self.last_time >= 100:
             self.draw_title()
-            self.position_buttons()
-            self.draw_buttons()
+            self.position_components()
+            self.draw_components()
 
 
 class MatrixMenu(Menu):
@@ -92,10 +92,12 @@ class MatrixMenu(Menu):
         self.component_list[0].pos = ((screen_width / 2), (screen_height / 2) + 200)
 
         # Arrows
-        self.right_arrow = Button(self.display_surface, self.increase_game_index, "+", 50, 50, 
-        ((screen_width/2) + 200, (screen_height/2) - 20), 'graphics/button/arrow/button_normal.png', 'graphics/button/arrow/button_hover.png')
-        self.left_arrow = Button(self.display_surface, self.decrease_game_index, "-", 50, 50, 
-        ((screen_width/2) - 240, (screen_height/2) - 20), 'graphics/button/arrow/left/button_normal.png', 'graphics/button/arrow/left/button_hover.png')
+        self.right_arrow = Button(self.display_surface, self.increase_game_index, "", 50, 50, 
+        ((screen_width/2) + 200, (screen_height/2) - 20), False, 'graphics/button/arrow/button_normal.png', 'graphics/button/arrow/button_hover.png')
+        self.left_arrow = Button(self.display_surface, self.decrease_game_index, "", 50, 50, 
+        ((screen_width/2) - 240, (screen_height/2) - 20), False, 'graphics/button/arrow/left/button_normal.png', 'graphics/button/arrow/left/button_hover.png')
+
+        self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
 
         self.create_grid()
     
@@ -107,19 +109,30 @@ class MatrixMenu(Menu):
     
     def increase_game_index(self):
         self.index += 1
+
         # Update data
         self.game_data = self.games_data[f"game_data_{self.index}"][0]
         self.matrix = self.game_data['matrix']
+
         print_matrix(self.matrix)
+        self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
+        self.game_type_text.draw()
+
         self.case_group = pygame.sprite.Group()
         self.draw_grid()
     
     def decrease_game_index(self):
         self.index -= 1
         # Update data
+
         self.game_data = self.games_data[f"game_data_{self.index}"][0]
         self.matrix = self.game_data['matrix']
+
         print_matrix(self.matrix)
+
+        self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
+        self.game_type_text.draw()
+
         self.case_group = pygame.sprite.Group()
         self.draw_grid()
     
@@ -157,23 +170,25 @@ class MatrixMenu(Menu):
         self.draw_title()
         self.draw_grid()
         self.draw_arrows()
+        self.game_type_text.draw()
         self.case_group.draw(self.display_surface)
 
         if now - self.last_time >= 100:
-            self.position_buttons()
-            self.draw_buttons()        
+            self.position_components()
+            self.draw_components()        
 
 class Button:
-    def __init__(self, surface, callback, text, width, height, pos=None, normal_image='graphics/button/button_normal.png', hover_image='graphics/button/button_hover.png'):
+    def __init__(self, surface, callback, text, width, height, pos=None, stay_press=False, normal_image='graphics/button/button_normal.png', hover_image='graphics/button/button_hover.png'):
         super().__init__()
         self.width = width
         self.height = height
         self.display_surface = surface
         self.text = text
         self.callback = callback
+        self.stay_press = stay_press
         self.normal_image = normal_image
         self.hover_image = hover_image
-        self.is_click = False
+
         self.last_time = pygame.time.get_ticks()
 
         # Font and image
@@ -202,13 +217,17 @@ class Button:
             self.display_surface.blit(self.image, self.rect)
             self.display_surface.blit(self.text_surf, self.text_rect)
         
-            if pygame.mouse.get_pressed()[0] and not self.is_click:
-                print('CLICK', self.text)
-                if self.callback != None:
-                    self.callback()
-                    self.is_click = True
+            if pygame.mouse.get_pressed()[0]:
+                if not self.stay_press and now - self.last_time >= 300:
+                    self.last_time = now
+                    print('CLICK', self.text, "Stay press", self.stay_press)
+                    if self.callback != None:
+                        self.callback()
+                elif self.stay_press:
+                    print('CLICK', self.text, "Stay press", self.stay_press)
+                    if self.callback != None:
+                        self.callback()
         else:
-            self.is_click = False
             self.image = pygame.image.load(self.normal_image).convert_alpha()
             self.display_surface.blit(self.image, self.rect)
             self.display_surface.blit(self.text_surf, self.text_rect)

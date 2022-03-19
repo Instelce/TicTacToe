@@ -14,7 +14,7 @@ class Game:
         self.mouse = Mouse(screen)
         self.last_time = pygame.time.get_ticks()
 
-        self.create_old_games_screen()
+        self.create_simple_computer_tictactoe()
 
     def quit_game(self):
         pygame.quit()
@@ -69,15 +69,13 @@ class Game:
         with open("data/games.json", "r") as stats_file:
             data = json.load(stats_file)
 
-        game_data = data[f"game_data_{len(data)-1}"][0]
-
         if len(data) > 0:
             self.old_games_screen = MatrixMenu(screen,
                                                "Old Games",
                                                data,
                                                [
                                                    Text(
-                                                       f"{game_data['winner']}"),
+                                                       f""),
                                                    Button(screen,
                                                           self.create_menu, "Back", 400, 50)
                                                ]
@@ -92,7 +90,7 @@ class Game:
 
     def create_simple_computer_tictactoe(self):
         self.tictactoe = TicTacToe(
-            screen, 'computer simple', self.create_menu)
+            screen, 'simple computer', self.create_menu)
         self.status = 'game'
 
     def create_expert_computer_tictactoe(self):

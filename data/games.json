@@ -1,1 +1,1 @@
-{"game_data_0": [{"index": 0, "matrix": [["X", "O", "O"], ["O", "X", "X"], ["X", "X", "O"]], "winner": "Equality"}], "game_data_1": [{"index": 1, "matrix": [["O", "", "O"], ["X", "O", "X"], ["X", "X", "O"]], "winner": "O"}], "game_data_2": [{"index": 2, "matrix": [["O", "X", "X"], ["X", "O", "O"], ["X", "O", "X"]], "winner": "Equality"}], "game_data_3": [{"index": 3, "matrix": [["O", "", ""], ["X", "O", ""], ["X", "X", "O"]], "winner": "O"}]}
+{}
