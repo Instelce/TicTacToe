@@ -14,7 +14,7 @@ class Game:
         self.mouse = Mouse(screen)
         self.last_time = pygame.time.get_ticks()
 
-        self.create_simple_computer_tictactoe()
+        self.create_expert_computer_tictactoe()
 
     def quit_game(self):
         pygame.quit()
@@ -95,7 +95,7 @@ class Game:
 
     def create_expert_computer_tictactoe(self):
         self.tictactoe = TicTacToe(
-            screen, 'computer expert', self.create_menu)
+            screen, 'expert computer', self.create_menu)
         self.status = 'game'
 
     def reset_stats_data(self):

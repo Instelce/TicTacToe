@@ -115,6 +115,8 @@ class MatrixMenu(Menu):
         self.matrix = self.game_data['matrix']
 
         print_matrix(self.matrix)
+
+        # Redraw text
         self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
         self.game_type_text.draw()
 
@@ -123,13 +125,14 @@ class MatrixMenu(Menu):
     
     def decrease_game_index(self):
         self.index -= 1
+        
         # Update data
-
         self.game_data = self.games_data[f"game_data_{self.index}"][0]
         self.matrix = self.game_data['matrix']
 
         print_matrix(self.matrix)
 
+        # Redraw text
         self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
         self.game_type_text.draw()
 
