@@ -97,7 +97,7 @@ class MatrixMenu(Menu):
         self.left_arrow = Button(self.display_surface, self.decrease_game_index, "", 50, 50, 
         ((screen_width/2) - 240, (screen_height/2) - 20), False, 'graphics/button/arrow/left/button_normal.png', 'graphics/button/arrow/left/button_hover.png')
 
-        self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
+        self.game_type_text = Text(f"{self.game_data['game_type']} | {self.game_data['index']}", ((screen_width/2), (screen_height/2) + 200))
 
         self.create_grid()
     
@@ -117,7 +117,7 @@ class MatrixMenu(Menu):
         print_matrix(self.matrix)
 
         # Redraw text
-        self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
+        self.game_type_text = Text(f"{self.game_data['game_type']} | {self.index}", ((screen_width/2), (screen_height/2) + 200))
         self.game_type_text.draw()
 
         self.case_group = pygame.sprite.Group()
@@ -133,7 +133,7 @@ class MatrixMenu(Menu):
         print_matrix(self.matrix)
 
         # Redraw text
-        self.game_type_text = Text(self.game_data['game_type'], ((screen_width/2), (screen_height/2) + 200))
+        self.game_type_text = Text(f"{self.game_data['game_type']} | {self.index}", ((screen_width/2), (screen_height/2) + 200))
         self.game_type_text.draw()
 
         self.case_group = pygame.sprite.Group()

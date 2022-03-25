@@ -16,6 +16,7 @@ class Game:
 
         self.create_expert_computer_tictactoe()
 
+
     def quit_game(self):
         pygame.quit()
         sys.exit()
@@ -85,17 +86,17 @@ class Game:
             self.create_menu()
 
     def create_jcj_tictactoe(self):
-        self.tictactoe = TicTacToe(screen, 'jcj', self.create_menu)
+        self.tictactoe = TicTacToe(screen, 'jcj', self.create_menu, self.mouse)
         self.status = 'game'
 
     def create_simple_computer_tictactoe(self):
         self.tictactoe = TicTacToe(
-            screen, 'simple computer', self.create_menu)
+            screen, 'simple computer', self.create_menu, self.mouse)
         self.status = 'game'
 
     def create_expert_computer_tictactoe(self):
         self.tictactoe = TicTacToe(
-            screen, 'expert computer', self.create_menu)
+            screen, 'expert computer', self.create_menu, self.mouse)
         self.status = 'game'
 
     def reset_stats_data(self):
@@ -123,6 +124,8 @@ class Game:
         self.create_menu()
 
     def run(self):
+        self.mouse.change_status('normal')
+
         if self.status == 'menu':
             self.start_menu.run()
         elif self.status == 'stats_screen':

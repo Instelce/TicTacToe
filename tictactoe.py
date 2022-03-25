@@ -11,10 +11,11 @@ from tiles import Case
 
 
 class TicTacToe:
-    def __init__(self, surface, game_type, create_start_menu):
+    def __init__(self, surface, game_type, create_start_menu, mouse):
         super(TicTacToe, self).__init__()
         self.display_surface = surface
         self.game_type = game_type
+        self.mouse = mouse
         self.create_start_menu = create_start_menu
 
         self.tictactoe_matrix = create_matrix(3, 3)
@@ -227,15 +228,7 @@ class TicTacToe:
         if self.game_type == 'expert computer':
             if not self.player_can_play:
                 is_posed = False
-                if self.corner_fill_count <= 3:
-                    for row_index, row in enumerate(self.tictactoe_matrix):
-                        for col_index, val in enumerate(row):
-                            random_pos = choice(self.all_corner_pos)
-                            if not is_posed and (row_index + col_index) % 2 == 0 and val == '' or val == 'X':
-                                self.fill_case(random_pos, self.round_image, 'O')
-                                self.player_can_play = True
-                                is_posed = True
-                elif can_win:
+                if can_win:
                     # Win
                     if can_win_count > 1:
                         row_or_col_or_diagonal = randint(1, can_win_count)
@@ -264,7 +257,59 @@ class TicTacToe:
                         self.fill_case(diagonal_right_win_pos, self.round_image, 'O')
                     elif can_diagonal_left_win:
                         # Diagonal left win
-                        self.fill_case(diagonal_left_win_pos, self.round_image, 'O') 
+                        self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                    is_posed = True
+                elif can_block:
+                    # Block
+                    if can_block_count > 1:
+                        row_or_col_or_diagonal = randint(1, can_block_count)
+                        print("Block Count :", can_block_count, "| Choice :", row_or_col_or_diagonal)
+
+                        if row_or_col_or_diagonal == 1 and can_row_block:
+                            # Row block
+                            self.fill_case(row_block_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 2 and can_col_block:
+                            # Col block
+                            self.fill_case(col_block_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 3 and can_diagonal_right_block:
+                            # Diagonal right block
+                            self.fill_case(diagonal_right_block_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 4 and can_diagonal_left_block:
+                            # Diagonal left block
+                            self.fill_case(diagonal_left_block_pos, self.round_image, 'O')
+                    elif can_row_block:
+                        # Row block
+                        self.fill_case(row_block_case_pos, self.round_image, 'O')
+                    elif can_col_block:
+                        # Col block
+                        self.fill_case(col_block_case_pos, self.round_image, 'O')
+                    elif can_diagonal_right_block:
+                        # Diagonal right block
+                        self.fill_case(diagonal_right_block_pos, self.round_image, 'O')
+                    elif can_diagonal_left_block:
+                        # Diagonal left block
+                        self.fill_case(diagonal_left_block_pos, self.round_image, 'O')
+                    is_posed = True
+                elif self.o_corner_fill_count < 3:
+                    # Fill corner case
+                    for row_index, row in enumerate(self.tictactoe_matrix):
+                        for col_index, val in enumerate(row):
+                            random_pos = choice(self.all_corner_pos)
+                            if not is_posed and (row_index + col_index) % 2 == 0 and val == '':
+                                self.fill_case(random_pos, self.round_image, 'O')
+                                is_posed = True
+                else:
+                    # Random case
+                    case = self.get_random_case()
+                    print(f"Case aléatoire {case}")
+                    tile = Case(80, self.grid_tiles[case[0]][case[1]].x + 10,
+                                        self.grid_tiles[case[0]][case[1]].y + 10, self.round_image)
+                    self.case_group.add(tile)
+                    self.tictactoe_matrix[case[0]][case[1]] = 'O'
+                    is_posed = True
+                
+                if is_posed:
+                    self.player_can_play = True
         elif self.game_type == 'simple computer':
             if not self.player_can_play:                
                 if can_win and can_block:
@@ -378,7 +423,8 @@ class TicTacToe:
         self.x_col_count = {}
         self.o_col_count = {}
 
-        self.corner_fill_count = 0
+        self.x_corner_fill_count = 0
+        self.o_corner_fill_count = 0
         self.all_corner_pos = []
 
         highlight_color = "#9038C1"
@@ -396,14 +442,18 @@ class TicTacToe:
         for row_index, row in enumerate(self.tictactoe_matrix):
             for col_index, val in enumerate(row):
                 if (row_index + col_index) % 2 == 0 and val != '' and row_index != 1:
-                    self.corner_fill_count += 1
+                    if val == 'O':
+                        self.o_corner_fill_count += 1
+                    elif val == 'X':
+                        self.x_corner_fill_count += 1
                 if (row_index + col_index) % 2 == 0 and row_index != 1:
                     self.all_corner_pos.append([row_index, col_index])
         
-        print("Corner count :", self.corner_fill_count)
-        print("Corner pos :", self.all_corner_pos)
-        random_pos = choice(self.all_corner_pos)
-        print("Random pos :", random_pos)
+        # print("X Corner count :", self.x_corner_fill_count)
+        # print("O Corner count :", self.o_corner_fill_count)
+        # print("Corner pos :", self.all_corner_pos)
+        # random_pos = choice(self.all_corner_pos)
+        # print("Random pos :", random_pos)
 
         # Increse col and row value
         for row_index, row in enumerate(self.tictactoe_matrix):
@@ -605,16 +655,28 @@ class TicTacToe:
         self.display_text()
         self.draw_back_button()
 
+        # Draw grid after 300ms
         if now -self.last_time >= 300 and not grid_is_draw:
             self.draw_grid()
             grid_is_draw = True
 
         self.check_win()
-                
+        
+        # Update data
         if self.winner != None and not self.data_is_update:
             self.update_stats_data()
             self.update_games_data()
             self.data_is_update = True
+
+        # Change status of mouse
+        if self.winner == 'X' and self.game_type == 'simple computer':
+            self.mouse.change_status('rainbow')
+        elif self.winner == 'O' and self.game_type != 'jcj':
+            self.mouse.change_status('demon')
+        elif self.winner != None and self.game_type == 'jcj':
+            self.mouse.change_status('rainbow')
+        elif self.winner == 'Equality':
+            self.mouse.change_status('equality')
 
         if grid_is_draw and self.game_type != 'jcj' and self.empty_case_count >= 1 and self.winner == None:
             if self.player_can_play:
@@ -633,6 +695,8 @@ class TicTacToe:
                     (screen_width / 2, screen_height - 160))
                 if now - self.last_time >= 2000:
                     self.last_time = now
-                    self.computer()           
+                    self.computer()         
+        elif grid_is_draw and self.game_type == 'jcj':
+            self.check_grid()
 
         self.case_group.draw(self.display_surface)
