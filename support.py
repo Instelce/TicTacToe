@@ -5,6 +5,28 @@ from os import walk
 def get_font(size):
     return pygame.font.Font('graphics/ui/Gamer.ttf', size)
 
+sound_is_play = False
+
+if sound_is_play:
+    sound_is_play = False
+
+def play_sound(sound):
+    global sound_is_play
+    
+    sounds = {
+        'clap': 'sounds/clap.wav',
+        'computer_turn': 'sounds/computer_turn.wav',
+        'player_turn': 'sounds/player_turn.wav',
+        'cross_player_turn': 'sounds/cross_player_turn.wav',
+        'round_player_turn': 'sounds/round_player_turn.wav',
+        'you_lose': 'sounds/you_lose.wav',
+        'you_win': 'sounds/you_win.wav',
+    }
+
+    if not sound_is_play:
+        pygame.mixer.Sound(sounds[sound]).play()
+        sound_is_play = True
+
 
 def import_folder(path, tile_size=64):
     surface_list = []

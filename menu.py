@@ -3,7 +3,7 @@ import sys
 import json
 
 from settings import *
-from support import get_font, print_matrix
+from support import get_font, print_matrix, play_sound
 from tiles import Case
 
 pygame.font.init()
@@ -230,6 +230,7 @@ class Button:
                 elif self.stay_press:
                     print('CLICK', self.text, "Stay press", self.stay_press)
                     if self.callback != None:
+                        play_sound('clap')
                         self.callback()
         else:
             self.image = pygame.image.load(self.normal_image).convert_alpha()

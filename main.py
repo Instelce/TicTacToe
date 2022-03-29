@@ -16,7 +16,6 @@ class Game:
 
         self.create_expert_computer_tictactoe()
 
-
     def quit_game(self):
         pygame.quit()
         sys.exit()
@@ -138,9 +137,16 @@ class Game:
         self.mouse.draw()
 
 
+pygame.mixer.pre_init(44100, -16, 2, 512)
+pygame.init()
+
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Tic Tac toe")
 pygame.mouse.set_visible(False)
+
+pygame.mixer.music.load('sounds/empty.wav')
+pygame.mixer.music.play(-1)
+
 clock = pygame.time.Clock()
 game = Game()
 

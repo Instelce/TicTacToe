@@ -225,10 +225,12 @@ class TicTacToe:
                     can_diagonal_left_block = True
                     can_block = True
 
+        # EXPERT COMPUTER
         if self.game_type == 'expert computer':
             if not self.player_can_play:
                 is_posed = False
-                if can_win:
+
+                if can_win and can_block:
                     # Win
                     if can_win_count > 1:
                         row_or_col_or_diagonal = randint(1, can_win_count)
@@ -246,6 +248,39 @@ class TicTacToe:
                         elif row_or_col_or_diagonal == 4:
                             # Diagonal left win
                             self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                        is_posed = True
+                    elif can_row_win:
+                        # Row win
+                        self.fill_case(row_win_case_pos, self.round_image, 'O')
+                    elif can_col_win:
+                        # Col win
+                        self.fill_case(col_win_case_pos, self.round_image, 'O')
+                    elif can_diagonal_right_win:
+                        # Diagonal right win
+                        self.fill_case(diagonal_right_win_pos, self.round_image, 'O')
+                    elif can_diagonal_left_win:
+                        # Diagonal left win
+                        self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                    is_posed = True
+                elif can_win:
+                    # Win
+                    if can_win_count > 1:
+                        row_or_col_or_diagonal = randint(1, can_win_count)
+                        print("win Count :", can_win_count, "| Choice :", row_or_col_or_diagonal)
+
+                        if row_or_col_or_diagonal == 1:
+                            # Row win
+                            self.fill_case(row_win_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 2:
+                            # Col win
+                            self.fill_case(col_win_case_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 3:
+                            # Diagonal right win
+                            self.fill_case(diagonal_right_win_pos, self.round_image, 'O')
+                        elif row_or_col_or_diagonal == 4:
+                            # Diagonal left win
+                            self.fill_case(diagonal_left_win_pos, self.round_image, 'O')
+                        is_posed = True
                     elif can_row_win:
                         # Row win
                         self.fill_case(row_win_case_pos, self.round_image, 'O')
@@ -277,6 +312,7 @@ class TicTacToe:
                         elif row_or_col_or_diagonal == 4 and can_diagonal_left_block:
                             # Diagonal left block
                             self.fill_case(diagonal_left_block_pos, self.round_image, 'O')
+                        is_posed = True
                     elif can_row_block:
                         # Row block
                         self.fill_case(row_block_case_pos, self.round_image, 'O')
@@ -289,27 +325,26 @@ class TicTacToe:
                     elif can_diagonal_left_block:
                         # Diagonal left block
                         self.fill_case(diagonal_left_block_pos, self.round_image, 'O')
-                    is_posed = True
-                elif self.o_corner_fill_count < 3:
+                        is_posed = True
+                elif self.o_corner_fill_count <= 3:
                     # Fill corner case
+                    good_random = False
+                    while not good_random:
+                        random_pos = choice(self.all_corner_pos)
+                        if self.tictactoe_matrix[random_pos[0]][random_pos[1]] == 'X' or self.tictactoe_matrix[random_pos[0]][random_pos[1]] == 'O':
+                            random_pos = choice(self.all_corner_pos)
+                        else:
+                            good_random = True
+
                     for row_index, row in enumerate(self.tictactoe_matrix):
                         for col_index, val in enumerate(row):
-                            random_pos = choice(self.all_corner_pos)
                             if not is_posed and (row_index + col_index) % 2 == 0 and val == '':
                                 self.fill_case(random_pos, self.round_image, 'O')
                                 is_posed = True
-                else:
-                    # Random case
-                    case = self.get_random_case()
-                    print(f"Case aléatoire {case}")
-                    tile = Case(80, self.grid_tiles[case[0]][case[1]].x + 10,
-                                        self.grid_tiles[case[0]][case[1]].y + 10, self.round_image)
-                    self.case_group.add(tile)
-                    self.tictactoe_matrix[case[0]][case[1]] = 'O'
-                    is_posed = True
-                
                 if is_posed:
+                    self.empty_case_count -= 1
                     self.player_can_play = True
+        # SIMPLE COMPUTER
         elif self.game_type == 'simple computer':
             if not self.player_can_play:                
                 if can_win and can_block:
@@ -583,6 +618,11 @@ class TicTacToe:
                   (screen_width / 2, 140))
         # Win text
         if self.winner == None and self.game_type == 'jcj':
+            if self.player == 'X':
+                play_sound('cross_player_turn')
+            elif self.player == 'O':
+                play_sound('round_player_turn')
+
             draw_text(self.display_surface,
                   f"{self.player} player turn",
                   40,
@@ -680,6 +720,7 @@ class TicTacToe:
 
         if grid_is_draw and self.game_type != 'jcj' and self.empty_case_count >= 1 and self.winner == None:
             if self.player_can_play:
+                play_sound('player_turn')
                 draw_text(self.display_surface,
                     "Player Turn",
                     40,
@@ -688,6 +729,7 @@ class TicTacToe:
 
                 self.check_grid()
             elif not self.player_can_play:
+                play_sound('computer_turn')
                 draw_text(self.display_surface,
                     "Computer Turn",
                     40,
